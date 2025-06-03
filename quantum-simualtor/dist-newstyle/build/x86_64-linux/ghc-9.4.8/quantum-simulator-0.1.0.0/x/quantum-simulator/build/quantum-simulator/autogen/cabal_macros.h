@@ -10,26 +10,6 @@
   (major1) == 0 && (major2) <  1 || \
   (major1) == 0 && (major2) == 1 && (minor) <= 0)
 #endif /* MIN_VERSION_quantum_simulator */
-/* package Chart-1.9.5 */
-#ifndef VERSION_Chart
-#define VERSION_Chart "1.9.5"
-#endif /* VERSION_Chart */
-#ifndef MIN_VERSION_Chart
-#define MIN_VERSION_Chart(major1,major2,minor) (\
-  (major1) <  1 || \
-  (major1) == 1 && (major2) <  9 || \
-  (major1) == 1 && (major2) == 9 && (minor) <= 5)
-#endif /* MIN_VERSION_Chart */
-/* package Chart-diagrams-1.9.5.1 */
-#ifndef VERSION_Chart_diagrams
-#define VERSION_Chart_diagrams "1.9.5.1"
-#endif /* VERSION_Chart_diagrams */
-#ifndef MIN_VERSION_Chart_diagrams
-#define MIN_VERSION_Chart_diagrams(major1,major2,minor) (\
-  (major1) <  1 || \
-  (major1) == 1 && (major2) <  9 || \
-  (major1) == 1 && (major2) == 9 && (minor) <= 5)
-#endif /* MIN_VERSION_Chart_diagrams */
 /* package base-4.17.2.1 */
 #ifndef VERSION_base
 #define VERSION_base "4.17.2.1"
@@ -40,16 +20,16 @@
   (major1) == 4 && (major2) <  17 || \
   (major1) == 4 && (major2) == 17 && (minor) <= 2)
 #endif /* MIN_VERSION_base */
-/* package colour-2.3.6 */
-#ifndef VERSION_colour
-#define VERSION_colour "2.3.6"
-#endif /* VERSION_colour */
-#ifndef MIN_VERSION_colour
-#define MIN_VERSION_colour(major1,major2,minor) (\
-  (major1) <  2 || \
-  (major1) == 2 && (major2) <  3 || \
-  (major1) == 2 && (major2) == 3 && (minor) <= 6)
-#endif /* MIN_VERSION_colour */
+/* package quantum-simulator-0.1.0.0 */
+#ifndef VERSION_quantum_simulator
+#define VERSION_quantum_simulator "0.1.0.0"
+#endif /* VERSION_quantum_simulator */
+#ifndef MIN_VERSION_quantum_simulator
+#define MIN_VERSION_quantum_simulator(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  1 || \
+  (major1) == 0 && (major2) == 1 && (minor) <= 0)
+#endif /* MIN_VERSION_quantum_simulator */
 /* package random-1.3.1 */
 #ifndef VERSION_random
 #define VERSION_random "1.3.1"

@@ -3,8 +3,6 @@ module Main where
 import Data.Complex
 import System.Random (randomRIO)
 import Control.Monad (replicateM)
-import Graphics.Rendering.Chart.Easy
-import Graphics.Rendering.Chart.Backend.Diagrams
 
 -- | Represents a qubit as a superposition of |0⟩ and |1⟩ states
 -- The complex numbers are the probability amplitudes
@@ -100,54 +98,53 @@ simulateMeasurements q n = replicateM n $ do
   (result, _) <- measure q
   return result
 
--- | Create a bar chart showing the probabilities of |0⟩ and |1⟩ states
-plotQubitProbabilities :: Qubit -> FilePath -> IO ()
-plotQubitProbabilities q fileName = do
+-- | Print a simple text-based visualization of probabilities
+printProbabilities :: String -> Qubit -> IO ()
+printProbabilities title q = do
   let prob0 = probZero q
       prob1 = probOne q
-      
-  toFile def fileName $ do
-    layout_title .= "Qubit State Probabilities"
-    layout_y_axis . laxis_generate .= scaledAxis def (0, 1.1)
-    
-    plot (bars ["Probabilities"] [("|0⟩", [prob0]), ("|1⟩", [prob1])])
+      bar0 = replicate (round (prob0 * 50)) '█'
+      bar1 = replicate (round (prob1 * 50)) '█'
+  
+  putStrLn $ "\n" ++ title ++ ":"
+  putStrLn $ "|0⟩: " ++ bar0 ++ " " ++ show (prob0 * 100) ++ "%"
+  putStrLn $ "|1⟩: " ++ bar1 ++ " " ++ show (prob1 * 100) ++ "%"
 
--- | Create a bar chart showing the results of multiple measurements
-plotMeasurementResults :: [Int] -> FilePath -> IO ()
-plotMeasurementResults results fileName = do
+-- | Print a text-based visualization of measurement results
+printMeasurementResults :: String -> [Int] -> IO ()
+printMeasurementResults title results = do
   let total = fromIntegral $ length results
       zeros = fromIntegral $ length $ filter (== 0) results
       ones = fromIntegral $ length $ filter (== 1) results
       zeroPercent = 100 * zeros / total
       onePercent = 100 * ones / total
-      
-  toFile def fileName $ do
-    layout_title .= "Measurement Results"
-    layout_y_axis . laxis_generate .= scaledAxis def (0, 110)
-    
-    plot (bars ["Results (%)"] [("|0⟩", [zeroPercent]), ("|1⟩", [onePercent])])
+      bar0 = replicate (round (zeroPercent / 2)) '█'
+      bar1 = replicate (round (onePercent / 2)) '█'
+  
+  putStrLn $ "\n" ++ title ++ ":"
+  putStrLn $ "|0⟩: " ++ bar0 ++ " " ++ show zeroPercent ++ "% (" ++ show (round zeros) ++ " measurements)"
+  putStrLn $ "|1⟩: " ++ bar1 ++ " " ++ show onePercent ++ "% (" ++ show (round ones) ++ " measurements)"
 
 -- | Main function for executable
 main :: IO ()
 main = do
   let q0 = qubitZero
   
+  putStrLn "======= Quantum Simulator ======="
   putStrLn $ "Initial state: " ++ showQubit q0
   putStrLn $ "Prob |0⟩: " ++ show (probZero q0)
   putStrLn $ "Prob |1⟩: " ++ show (probOne q0)
   
-  -- Plot initial state probabilities
-  plotQubitProbabilities q0 "initial_state.svg"
-  putStrLn "Initial state probabilities plotted to 'initial_state.svg'"
+  -- Print initial state probabilities
+  printProbabilities "Initial state probabilities" q0
   
   let q1 = hGate q0  -- Apply Hadamard to create superposition
   putStrLn $ "\nAfter Hadamard: " ++ showQubit q1
   putStrLn $ "Prob |0⟩: " ++ show (probZero q1)
   putStrLn $ "Prob |1⟩: " ++ show (probOne q1)
   
-  -- Plot Hadamard state probabilities
-  plotQubitProbabilities q1 "hadamard_state.svg"
-  putStrLn "Hadamard state probabilities plotted to 'hadamard_state.svg'"
+  -- Print Hadamard state probabilities
+  printProbabilities "After Hadamard" q1
   
   -- Perform 1000 measurements and count results
   results <- simulateMeasurements q1 1000
@@ -158,22 +155,19 @@ main = do
   putStrLn $ "Measured |0⟩: " ++ show zeros ++ " times (" ++ show (100 * fromIntegral zeros / 1000) ++ "%)"
   putStrLn $ "Measured |1⟩: " ++ show ones ++ " times (" ++ show (100 * fromIntegral ones / 1000) ++ "%)"
   
-  -- Plot measurement results
-  plotMeasurementResults results "measurement_results.svg"
-  putStrLn "Measurement results plotted to 'measurement_results.svg'"
+  -- Print measurement results
+  printMeasurementResults "Measurement results (1000 samples)" results
   
   -- Demonstrate X gate (NOT)
   let q2 = xGate q0
   putStrLn $ "\nAfter X gate on |0⟩: " ++ showQubit q2
   
-  -- Plot X gate state probabilities
-  plotQubitProbabilities q2 "x_gate_state.svg"
-  putStrLn "X gate state probabilities plotted to 'x_gate_state.svg'"
+  -- Print X gate state probabilities
+  printProbabilities "After X gate on |0⟩" q2
   
   -- Demonstrate H then X then H
   let q3 = hGate $ xGate $ hGate q0
   putStrLn $ "\nH → X → H on |0⟩: " ++ showQubit q3
   
-  -- Plot HXH state probabilities
-  plotQubitProbabilities q3 "hxh_state.svg"
-  putStrLn "HXH state probabilities plotted to 'hxh_state.svg'"
+  -- Print HXH state probabilities
+  printProbabilities "After H → X → H" q3

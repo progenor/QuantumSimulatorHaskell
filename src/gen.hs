@@ -5,27 +5,22 @@ import Control.Monad
 import Data.Time.Clock
 import Text.Printf
 
--- Generate random bits using System.Random (classical)
 generateClassicalBits :: Int -> IO [Int]
 generateClassicalBits n = do
     gen <- getStdGen
     let randomDoubles = randoms gen :: [Double]
     return $ take n $ map (\x -> if x < 0.5 then 0 else 1) randomDoubles
 
--- Run quantum simulation and save results to file
 runQuantumSimulation :: Int -> String -> IO ()
 runQuantumSimulation iterations outFile = do
     putStrLn $ "Running quantum simulation with " ++ show iterations ++ " iterations..."
     startTime <- getCurrentTime
     
     let q1 = qubitZero  
-    -- Apply Hadamard gate to create superposition
     let qSuper =  hGate q1
     putStrLn $ "Initial state: " ++ show qSuper
-    -- Run the quantum simulation
     results <- simulateMeasurements qSuper iterations
     
-    -- Calculate statistics
     let zeros = length $ filter (== 0) results
     let ones = length $ filter (== 1) results
     let zeroPercent = (100 * fromIntegral zeros / fromIntegral iterations)
@@ -34,7 +29,6 @@ runQuantumSimulation iterations outFile = do
     endTime <- getCurrentTime
     let duration = diffUTCTime endTime startTime
     
-    -- Write results to file
     writeFile outFile $ 
         
         concatMap (\x -> show x ++ "\n") results
@@ -43,16 +37,13 @@ runQuantumSimulation iterations outFile = do
     putStrLn $ "Measured |1⟩: " ++ show ones ++ " times (" ++ show onePercent ++ "%)"
     putStrLn $ "Duration: " ++ show duration
 
--- Run classical simulation and save results to file
 runClassicalSimulation :: Int -> String -> IO ()
 runClassicalSimulation iterations outFile = do
     putStrLn $ "Running classical simulation with " ++ show iterations ++ " iterations..."
     startTime <- getCurrentTime
     
-    -- Generate random bits classically
     results <- generateClassicalBits iterations
     
-    -- Calculate statistics
     let zeros = length $ filter (== 0) results
     let ones = length $ filter (== 1) results
     let zeroPercent = 100.0 * fromIntegral zeros / fromIntegral iterations :: Double
@@ -61,7 +52,6 @@ runClassicalSimulation iterations outFile = do
     endTime <- getCurrentTime
     let duration = diffUTCTime endTime startTime
     
-    -- Write results to file
     writeFile outFile $ 
         
         concatMap (\x -> show x ++ "\n") results
@@ -70,22 +60,18 @@ runClassicalSimulation iterations outFile = do
     putStrLn $ "Generated 0: " ++ show zeros ++ " times (" ++ printf "%.2f" zeroPercent ++ "%)"
     putStrLn $ "Generated 1: " ++ show ones ++ " times (" ++ printf "%.2f" onePercent ++ "%)"
 
--- Compare quantum and classical simulations
 runComparisonSimulation :: Int -> String -> IO ()
 runComparisonSimulation iterations outFile = do
     putStrLn $ "Running comparison simulation with " ++ show iterations ++ " iterations..."
     
-    -- Run quantum simulation
-    let q1 = hGate qubitZero  -- Start with |0⟩ and apply Hadamard gate
+    let q1 = hGate qubitZero  
     quantumResults <- simulateMeasurements q1 iterations
     let quantumZeros = length $ filter (== 0) quantumResults
     let quantumOnes = length $ filter (== 1) quantumResults
     
-    -- Run classical simulation
     classicalResults <- generateClassicalBits iterations
     let classicalZeros = length $ filter (== 0) classicalResults
     
-    -- Write results to CSV file
     writeFile outFile "iteration,quantum,classical\n"
     appendFile outFile $ 
         concatMap (\(i, q, c) -> show i ++ "," ++ show q ++ "," ++ show c ++ "\n") 
@@ -100,7 +86,6 @@ runComparisonSimulation iterations outFile = do
     putStrLn $ "Classical 0: " ++ show classicalZeros ++ " times (" ++ 
                printf "%.2f" classicalZeroPercent ++ "%)"
 
--- Print usage information
 printUsage :: IO ()
 printUsage = putStrLn $ unlines
     [ "Usage: gen [OPTIONS]"
@@ -118,7 +103,6 @@ printUsage = putStrLn $ unlines
     , "  gen --compare 10000 comparison.csv"
     ]
 
--- Main function to parse arguments and run the appropriate simulation
 main :: IO ()
 main = do
     args <- getArgs
@@ -128,7 +112,6 @@ main = do
         ["--compare", n, file] -> runComparisonSimulation (read n) file
         ["--help"] -> printUsage
         [] -> do
-            -- Default behavior for backward compatibility
             results <- simulateMeasurements qubitZero 10000
             let zeros = length $ filter (== 0) results
             let ones = length $ filter (== 1) results
